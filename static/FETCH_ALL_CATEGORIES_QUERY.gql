@@ -1,0 +1,11 @@
+{
+  productCategories(first: 100, where: {parent: null, orderby: NAME, order: ASC, hideEmpty: true}) {
+    nodes {
+      slug
+      name
+      id
+      parentId
+      count
+    }
+  }
+}

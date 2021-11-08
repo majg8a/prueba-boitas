@@ -1,0 +1,32 @@
+query ProductsFromCategory {
+  productCategory(id: "belleza", idType: SLUG) {
+    id
+    name
+    uri
+    products(first: 12, where: { status: "publish", type: SIMPLE }) {
+      nodes {
+        id
+        name
+        slug
+        description
+        image {
+          id
+          uri
+          title
+          srcSet
+          sourceUrl(size: SHOP_CATALOG)
+        }
+        ... on SimpleProduct {
+          salePrice
+          regularPrice
+          price
+        }
+        ... on VariableProduct {
+          salePrice
+          price
+          regularPrice
+        }
+      }
+    }
+  }
+}
