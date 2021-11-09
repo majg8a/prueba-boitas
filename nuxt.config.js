@@ -34,7 +34,7 @@ export default {
   apollo: {
     clientConfigs: {
       default: {
-        httpEndpoint: 'https://gql.boitas.com/graphql',
+        httpEndpoint: 'https://s36519.p1418.sites.pressdns.com/graphql',
       },
     },
   },

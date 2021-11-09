@@ -58,10 +58,14 @@
               class="mr-2 my-auto btn btn-orange"
               >Registrarme
             </a>
-            <div data-v-360acaeb="" data-v-450d52fa="" class="self-center">
+            <div
+              data-v-360acaeb=""
+              data-v-450d52fa=""
+              class="self-center"
+              style="position: relative"
+            >
               <a
                 data-v-360acaeb=""
-                href="https://empresas.boitas.com/cart"
                 class="z-50 pr-3 py-2 text-gray-700 flex relative"
                 ><svg
                   data-v-360acaeb=""
@@ -97,9 +101,74 @@
                     rounded-full
                   "
                 >
-                  0
+                  {{ cart.length }}
                 </span></a
               >
+              <div
+                style="
+                  position: absolute;
+                  top: 0px;
+                  left: 0px;
+                  display: grid;
+                  justify-content: left;
+                "
+                class="drop-down-menu-container"
+              >
+                <a
+                  data-v-360acaeb=""
+                  class="z-50 pr-3 py-2 text-gray-700 flex relative"
+                  style="width: 40px; height: 44px"
+                  ><svg
+                    data-v-360acaeb=""
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    class="h-7 w-7"
+                    style="--darkreader-inline-stroke: currentColor"
+                    data-darkreader-inline-stroke=""
+                  >
+                    <path
+                      data-v-360acaeb=""
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                    ></path>
+                  </svg>
+                  <span
+                    data-v-360acaeb=""
+                    class="
+                      inline-flex
+                      badge-pos
+                      items-center
+                      justify-center
+                      mr-2
+                      text-xs
+                      font-bold
+                      leading-none
+                      text-red-100
+                      bg-red-500
+                      rounded-full
+                    "
+                  >
+                    {{ cart.length }}
+                  </span></a
+                >
+
+                <div class="drop-down-menu">
+                  <div
+                    class="drop-down-menu-item"
+                    v-for="(cartProduct, index) in cart"
+                    :key="cartProduct.id"
+                  >
+                    {{ cartProduct.name }}
+                    <button @click="handleRemoveProductFromCart(index)">
+                      Remover
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -314,24 +383,6 @@
                 top-menu
               "
             >
-              <!-- <div data-v-7b989da7="" class="flex sm:hidden">
-                <li data-v-7b989da7="" class="has-submenu flex text-gray-900">
-                  <a data-v-7b989da7="" href="#" class="has-submenu flex p-3">
-                    Categorías
-                  </a>
-                  <ul  id="drop" class="submenuhidden" v-if="categories">
-                    <li  v-for="category in categories.categoryFeed" :key="category.id">
-                      <a
-
-                        href="https://empresas.boitas.com/categoria/cordones-broches"
-
-                      >
-                        {{ category.name }}
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-              </div> -->
               <div data-v-7b989da7="" class="hidden sm:flex">
                 <li data-v-7b989da7="" class="has-submenu sm:text-gray-500">
                   <a
@@ -345,12 +396,13 @@
                     data-v-7b989da7=""
                     id="dropD"
                     class="submenudesktop submenu"
-                    v-if="categories"
+                    v-if="productCategories"
                   >
                     <li
-                      v-for="category in categories.categoryFeed"
+                      v-for="category in productCategories.nodes"
                       :key="category.id"
                       data-v-7b989da7=""
+                      @click="selectedCategory = category.slug"
                     >
                       <a data-v-7b989da7="">
                         {{ category.name }}
@@ -428,15 +480,24 @@
         </div>
       </div>
     </header>
+
     <div class="md:flex w-11/12 mx-auto appNuxt">
       <div class="md:w-3/12 mr-7 border-r border-gray-200">
         <div class="mb-2">
           <h4 class="text-xl font-medium mb-2">Categorias</h4>
-          <ul>
+          <ul v-if="selectedCategory && productCategory">
             <!---->
             <li>
               <span class="cursor-pointer hover:text-red-500 font-medium">
-                ARTICULOS COMPUTADORA
+                {{ productCategory.name }}
+              </span>
+            </li>
+          </ul>
+          <ul v-if="!selectedCategory">
+            <!---->
+            <li>
+              <span class="cursor-pointer hover:text-red-500 font-medium">
+                Todo
               </span>
             </li>
           </ul>
@@ -503,10 +564,14 @@
               </a>
             </li>
             <li><span class="mx-2">/</span></li>
-            <li class="text-gray-500">ARTICULOS COMPUTADORA</li>
+            <li class="text-gray-500" v-if="productCategory">
+              {{ productCategory.name }}
+            </li>
           </ol>
         </nav>
-        <h1 class="text-4xl mb-4 font-medium">ARTICULOS COMPUTADORA</h1>
+        <h1 class="text-4xl mb-4 font-medium" v-if="productCategory">
+          {{ productCategory.name }}
+        </h1>
         <div class="products-container" id="products-container">
           <div class="my-5">
             <ul
@@ -519,11 +584,11 @@
                 grid-rows-1
                 md:gap-4
               "
-              v-if="products"
+              v-if="products && !selectedCategory"
             >
               <li
                 class="mb-4 lg:mb-12"
-                v-for="product in products.productFeed"
+                v-for="product in products.nodes"
                 :key="product.id"
               >
                 <div data-v-616c2587="" class="product">
@@ -531,7 +596,7 @@
                     ><div data-v-616c2587="" class="product-image space-y-2">
                       <img
                         data-v-616c2587=""
-                        :src="product.images[0].src"
+                        :src="product.image.sourceUrl"
                         alt="product"
                         class="mx-auto"
                       />
@@ -556,7 +621,67 @@
                         </div>
                         <div data-v-616c2587="" class="extra pb-2">
                           <p data-v-616c2587="" class="cost truncate">
-                            ${{ product.price | decimalLimit }}
+                            {{ product.price }}
+                          </p>
+                          <button @click="handleAddProductToCart(product)">
+                            Al carrito
+                          </button>
+                        </div>
+                      </div>
+                    </div></a
+                  >
+                </div>
+              </li>
+            </ul>
+
+            <ul
+              class="
+                w-full
+                md:grid
+                grid-cols-2
+                md:grid-cols-4
+                mt-5
+                grid-rows-1
+                md:gap-4
+              "
+              v-if="productCategory"
+            >
+              <li
+                class="mb-4 lg:mb-12"
+                v-for="product in productCategory.products.nodes"
+                :key="product.id"
+              >
+                <div data-v-616c2587="" class="product">
+                  <a data-v-616c2587="" class=""
+                    ><div data-v-616c2587="" class="product-image space-y-2">
+                      <img
+                        data-v-616c2587=""
+                        :src="product.image.sourceUrl"
+                        alt="product"
+                        class="mx-auto"
+                      />
+                      <div
+                        data-v-616c2587=""
+                        class="product-content text-left space-y-1 mx-4 pt-1"
+                      >
+                        <h2 data-v-616c2587="" class="h-8 break-words">
+                          {{ product.name }}
+                        </h2>
+                        <div
+                          data-v-616c2587=""
+                          class="sending font-medium pt-1"
+                        >
+                          <h1 data-v-616c2587="">
+                            <i
+                              data-v-616c2587=""
+                              class="fas fa-truck-loading mr-1"
+                            ></i>
+                            Envío gratis en México
+                          </h1>
+                        </div>
+                        <div data-v-616c2587="" class="extra pb-2">
+                          <p data-v-616c2587="" class="cost truncate">
+                            {{ product.price }}
                           </p>
                         </div>
                       </div>
@@ -694,7 +819,7 @@
           </p>
         </div>
       </div>
-      <div class="Cookie Cookie--bottom Cookie--base">
+      <!-- <div class="Cookie Cookie--bottom Cookie--base">
         <div class="Cookie__content">
           <div>
             Este sitio web utiliza cookies para garantizar que obtenga la mejor
@@ -704,7 +829,7 @@
         <div class="Cookie__buttons">
           <button class="Cookie__button">Entendido</button>
         </div>
-      </div>
+      </div> -->
     </footer>
   </div>
 </template>
@@ -712,86 +837,145 @@
 <script>
 import gql from 'graphql-tag'
 export default {
-  filters: {
-    decimalLimit: (val) => `${Number.parseInt(val)}.${String(val)
-        ?.split('.')[1]
-        ?.split('')
-        ?.filter((a, index) => index < 2)
-        ?.join('')}`,
-  },
   data: () => ({
-    category: '',
+    selectedCategory: null,
+    cart: [],
   }),
+  methods: {
+    handleAddProductToCart(product) {
+      this.cart.push(product)
+    },
+    handleRemoveProductFromCart(index) {
+      this.cart.splice(index, 1)
+    },
+  },
   apollo: {
-    categories: gql`
-      query getProductCategories {
-        categories(limit: 12, where: { parentId: null }) {
-          categoryFeed {
+    productCategories: gql`
+      {
+        productCategories(
+          first: 100
+          where: { parent: null, orderby: NAME, order: ASC, hideEmpty: true }
+        ) {
+          nodes {
             slug
             name
             id
             parentId
+            count
           }
         }
       }
     `,
-
-
 
     products: gql`
-      query getProducts {
-        products(limit: 24) {
-          productFeed {
+      {
+        products(first: 24, where: { type: SIMPLE }) {
+          nodes {
+            databaseId
             name
+            onSale
             slug
-            images {
-              src
+            image {
+              sourceUrl
             }
-            price
+            ... on SimpleProduct {
+              databaseId
+              price
+              regularPrice
+              salePrice
+            }
+            # ... on VariableProduct {
+            #   databaseId
+            #   price
+            #   regularPrice
+            #   salePrice
+            #   variations {
+            #     nodes {
+            #       price
+            #       regularPrice
+            #       salePrice
+            #     }
+            #   }
           }
         }
       }
     `,
 
-    productsByCategory: gql`
-      query getProductsFromCategory {
-        productCategory(id: "belleza", idType: SLUG) {
-          id
-          name
-          uri
-          products(first: 12, where: { status: "publish", type: SIMPLE }) {
-            nodes {
-              id
-              name
-              slug
-              description
-              image {
+    productCategory: {
+      query: gql`
+        query getProductCategory($selectedCategory: ID!) {
+          productCategory(id: $selectedCategory, idType: SLUG) {
+            id
+            name
+            uri
+            products(first: 12, where: { status: "publish", type: SIMPLE }) {
+              nodes {
                 id
-                uri
-                title
-                srcSet
-                sourceUrl(size: SHOP_CATALOG)
-              }
-              ... on SimpleProduct {
-                salePrice
-                regularPrice
-                price
-              }
-              ... on VariableProduct {
-                salePrice
-                price
-                regularPrice
+                name
+                slug
+                description
+                image {
+                  id
+                  uri
+                  title
+                  srcSet
+                  sourceUrl(size: SHOP_CATALOG)
+                }
+                ... on SimpleProduct {
+                  salePrice
+                  regularPrice
+                  price
+                }
+                ... on VariableProduct {
+                  salePrice
+                  price
+                  regularPrice
+                }
               }
             }
           }
         }
-      }
-    `,
+      `,
+      variables() {
+        return { selectedCategory: this.selectedCategory }
+      },
+    },
   },
 }
 </script>
 
-  <style >
+<style>
+.drop-down-menu-container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: grid;
+  justify-content: left;
+  max-height: 44px;
+  max-width: 44px;
+
+  overflow: hidden;
+}
+
+.drop-down-menu-container:hover {
+  max-height: min-content;
+  overflow: visible;
+}
+
+.drop-down-menu-item {
+  padding: 14px 14px;
+  display: flex;
+  justify-content: space-between;
+  column-gap: 2vw;
+}
+.drop-down-menu {
+  white-space: nowrap;
+  background-color: white;
+  transform: translateX(-90%);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e5e5 !important;
+  border-radius: 8px;
+}
 .nuxt-progress {
   position: fixed;
   top: 0;
